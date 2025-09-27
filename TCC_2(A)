@@ -1,0 +1,36 @@
+-- Part A: Prevent Duplicate Enrollments
+
+-- Step 1: Create table with UNIQUE constraint
+CREATE TABLE IF NOT EXISTS StudentEnrollments (
+    enrollment_id INT PRIMARY KEY,
+    student_name VARCHAR(100) NOT NULL,
+    course_id VARCHAR(10) NOT NULL,
+    enrollment_date DATE NOT NULL,
+    UNIQUE(student_name, course_id)   -- Prevent duplicate enrollment
+);
+
+-- Step 2: Sample data
+INSERT INTO StudentEnrollments (enrollment_id, student_name, course_id, enrollment_date)
+VALUES 
+(1, 'Ashish', 'CSE101', '2024-07-01'),
+(2, 'Smaran', 'CSE102', '2024-07-01'),
+(3, 'Vaibhav', 'CSE101', '2024-07-01')
+ON DUPLICATE KEY UPDATE enrollment_id = enrollment_id; -- ignore duplicates
+
+-- Step 3: Simulate two users inserting same enrollment
+-- User 1
+START TRANSACTION;
+
+INSERT INTO StudentEnrollments (enrollment_id, student_name, course_id, enrollment_date)
+VALUES (4, 'Ashish', 'CSE101', '2024-07-02');
+
+COMMIT;
+
+-- User 2 (will fail due to UNIQUE constraint)
+START TRANSACTION;
+
+INSERT INTO StudentEnrollments (enrollment_id, student_name, course_id, enrollment_date)
+VALUES (5, 'Ashish', 'CSE101', '2024-07-02');
+
+-- This will throw: Duplicate entry for key 'student_name_course_id'
+COMMIT;
